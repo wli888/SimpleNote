@@ -55,11 +55,14 @@ class _NoteState extends State<Note> with SingleTickerProviderStateMixin {
         builder: (BuildContext context) => AlertDialog(
               title: Text("Warning"),
               content: Text(
-                  "Your changes will be discarded. Do you want to continue?"),
+                  "You have made changes. Do you want to save the changes?"),
               actions: [
                 TextButton(
                   child: Text("Yes"),
-                  onPressed: () {
+                  onPressed: () async {
+                    noteStorage.setFilename(noteTitleController.text);
+                    noteStorage.writeFile(myController.text);
+                    noteChanged = false;
                     Navigator.pop(context, null);
                     Navigator.pop(context, null);
                   },
@@ -67,6 +70,7 @@ class _NoteState extends State<Note> with SingleTickerProviderStateMixin {
                 TextButton(
                   child: Text("No"),
                   onPressed: () {
+                    Navigator.pop(context, null);
                     Navigator.pop(context, null);
                   },
                 ),
@@ -108,20 +112,27 @@ class _NoteState extends State<Note> with SingleTickerProviderStateMixin {
               noteStorage.setFilename(title);
             },
           ),
-          TextField(
-            controller: myController,
-            keyboardType: TextInputType.multiline,
-            maxLines: null,
-            decoration: InputDecoration(
-              border: InputBorder.none,
+          SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            //reverse: true,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: 700),
+              child: TextField(
+                controller: myController,
+                keyboardType: TextInputType.multiline,
+                maxLines: null,
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                ),
+                onChanged: (String text) {
+                  noteChanged = true;
+                },
+              ),
             ),
-            onChanged: (String text) {
-              noteChanged = true;
-            },
           ),
         ],
       ),
-      floatingActionButton: Stack(
+/*       floatingActionButton: Stack(
         children: [
           Positioned(
             left: 30,
@@ -154,7 +165,7 @@ class _NoteState extends State<Note> with SingleTickerProviderStateMixin {
                 child: Text("Save")),
           )
         ],
-      ),
+      ), */
     );
   }
 }
