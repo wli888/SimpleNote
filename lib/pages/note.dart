@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:simple_note/storage.dart';
 
 class Note extends StatefulWidget {
+  // ignore: type_init_formals
   const Note({Key? key, required String this.noteName}) : super(key: key);
 
   final String noteName;
@@ -19,6 +20,7 @@ class _NoteState extends State<Note> with SingleTickerProviderStateMixin {
   String noteName;
   late bool noteChanged;
 
+  // ignore: type_init_formals
   _NoteState(String this.noteName) {
     initNote();
   }
