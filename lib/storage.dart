@@ -58,4 +58,13 @@ class FileStorage {
           mode: FileMode.append);
     });
   }
+
+  Future<bool> checkFileExists(String fileName) async {
+    bool result;
+    final _dirPath = await _localPath;
+
+    final _myFile = File('$_dirPath/$fileName');
+    result = await _myFile.exists();
+    return result;
+  }
 }

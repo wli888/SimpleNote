@@ -19,6 +19,7 @@ class _NoteState extends State<Note> with SingleTickerProviderStateMixin {
   final FileStorage noteStorage = FileStorage("");
   String noteName;
   late bool noteChanged;
+  late bool noteNameChanged;
 
   // ignore: type_init_formals
   _NoteState(String this.noteName) {
@@ -27,6 +28,7 @@ class _NoteState extends State<Note> with SingleTickerProviderStateMixin {
 
   Future<void> initNote() async {
     noteChanged = false;
+    noteNameChanged = false;
     await noteStorage.readFile(noteName).then((value) => {
           setState(() {
             myController.text = "";
@@ -62,11 +64,11 @@ class _NoteState extends State<Note> with SingleTickerProviderStateMixin {
                 TextButton(
                   child: Text("Yes"),
                   onPressed: () async {
-                    noteStorage.setFilename(noteTitleController.text);
+                    noteStorage.setFilename(noteName);
                     noteStorage.writeFile(myController.text);
                     noteChanged = false;
                     Navigator.pop(context, null);
-                    Navigator.pop(context, null);
+                    Navigator.pop(context, noteName);
                   },
                 ),
                 TextButton(
@@ -80,6 +82,25 @@ class _NoteState extends State<Note> with SingleTickerProviderStateMixin {
             ));
   }
 
+  handleNoteNameChanged(String newNoteName) async {
+    await noteStorage.checkFileExists(newNoteName).then((value) => {
+          if (value == true)
+            {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                        title: Text("Warning"),
+                        content: Text(
+                            "The note name already exists. Reverting note name"),
+                      )),
+              noteTitleController.text = noteName,
+              noteNameChanged = false
+            }
+          else
+            {noteNameChanged = true}
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,21 +110,44 @@ class _NoteState extends State<Note> with SingleTickerProviderStateMixin {
             return IconButton(
               icon: const Icon(Icons.arrow_back),
               onPressed: () {
-                if (noteChanged == true) {
+                if (noteNameChanged == true) {
+                  handleNoteNameChanged(noteTitleController.text);
+                } else if (noteChanged == true) {
                   showAlertDialog(context);
                 } else {
-                  Navigator.pop(context, noteTitleController.text);
+                  Navigator.pop(context, null);
                 }
               },
             );
           },
         ),
-        title: Text("Note"),
+        title: TextField(
+          controller: noteTitleController,
+          maxLines: 1,
+          decoration: InputDecoration(
+              //border: InputBorder.none,
+              ),
+          onSubmitted: (String newNoteName) {
+            if (newNoteName != noteName) {
+              handleNoteNameChanged(newNoteName);
+            } else {
+              noteNameChanged = false;
+            }
+//            noteStorage.setFilename(title);
+          },
+          onChanged: (String newNoteName) {
+            if (newNoteName != noteName) {
+              noteNameChanged = true;
+            } else {
+              noteNameChanged = false;
+            }
+          },
+        ),
         centerTitle: true,
       ),
-      body: Column(
+      body: ListView(
         children: [
-          TextField(
+/*           TextField(
             controller: noteTitleController,
             maxLines: 1,
             decoration: InputDecoration(
@@ -113,25 +157,19 @@ class _NoteState extends State<Note> with SingleTickerProviderStateMixin {
               noteChanged = true;
               noteStorage.setFilename(title);
             },
-          ),
-          SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            //reverse: true,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: 700),
-              child: TextField(
-                controller: myController,
-                keyboardType: TextInputType.multiline,
-                maxLines: null,
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                ),
-                onChanged: (String text) {
-                  noteChanged = true;
-                },
-              ),
+          ), */
+          TextField(
+            controller: myController,
+            keyboardType: TextInputType.multiline,
+            maxLines: null,
+            decoration: InputDecoration(
+              border: InputBorder.none,
             ),
+            onChanged: (String text) {
+              noteChanged = true;
+            },
           ),
+          //),
         ],
       ),
 /*       floatingActionButton: Stack(
