@@ -48,6 +48,7 @@ class FileStorage {
     await _myFile.writeAsString(text);
   }
 
+  // writes the names of the notes to a file
   Future<void> writeNotesList(List<String> notesList) async {
     final _dirPath = await _localPath;
 

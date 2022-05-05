@@ -20,6 +20,7 @@ class _SimpleNoteHomeState extends State<SimpleNoteHome> {
   }
 
   Future<void> initNotesList() async {
+    // SimpleNotes.txt contains the names of the notes of the application.
     notesListStorage.setFilename('SimpleNotes.txt');
     await notesListStorage.readFile('SimpleNotes.txt').then((value) => {
           setState(() {
@@ -35,6 +36,7 @@ class _SimpleNoteHomeState extends State<SimpleNoteHome> {
         title: Text("SimpleNote"),
         centerTitle: true,
       ),
+      // list of notes
       body: ListView.builder(
         itemCount: noteTitles.length,
         itemBuilder: (context, index) {
@@ -42,17 +44,20 @@ class _SimpleNoteHomeState extends State<SimpleNoteHome> {
             child: ListTile(
               title: Text(noteTitles[index]),
               onTap: () async {
+                //onTap to open the note
                 dynamic result = await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => Note(noteName: noteTitles[index]),
                   ),
                 );
+                // 'result' contains the title name of the note
+                // if changes were made to the note
                 if (result != null) {
                   setState(() {
                     noteTitles[index] = result;
                   });
-                  notesListStorage.writeNotesList(noteTitles);
+                  await notesListStorage.writeNotesList(noteTitles);
                 }
               },
               //onLongPress: () => print(noteTitles[index]),
@@ -60,6 +65,7 @@ class _SimpleNoteHomeState extends State<SimpleNoteHome> {
           );
         },
       ),
+      // New Note button
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           dynamic result = await Navigator.push(
@@ -68,11 +74,13 @@ class _SimpleNoteHomeState extends State<SimpleNoteHome> {
               builder: (context) => Note(noteName: "New Note"),
             ),
           );
+          // 'result' contains the title name of the new note
+          // if it is non-null the title will be added to the list of note names
           if (result != null) {
             setState(() {
               noteTitles.add(result);
             });
-            notesListStorage.writeNotesList(noteTitles);
+            await notesListStorage.writeNotesList(noteTitles);
           }
         },
         tooltip: 'New Note',
